@@ -13,12 +13,12 @@ export const postsApi = {
     },
 
     getFeed: () => {
-        return apiClient<Post[]>("/feed");
-    },
-
-    getPublicFeed: () => {
         return apiClient<Post[]>("/home");
     },
+
+    // getPublicFeed: () => {
+    //     return apiClient<Post[]>("/home");
+    // },
 
     createPost: (content: string) => {
         return apiClient<Post>("/posts", {

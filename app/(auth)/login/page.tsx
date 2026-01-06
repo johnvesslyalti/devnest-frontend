@@ -31,17 +31,71 @@ export default function LoginPage() {
     });
 
     const onSubmit = async (data: LoginFormData) => {
+        console.log("Submitting login form...", data);
         setIsLoading(true);
         setError(null);
         try {
             const response = await authApi.login(data);
+            console.log("Login success, response:", response);
+
+            // Handle various token field names
+            const token = response.token || (response as any).accessToken || (response as any).access_token;
+
             // Store token and user
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('user', JSON.stringify(response.user));
+            if (token) {
+                localStorage.setItem('token', token);
+                console.log("Token stored");
+            } else {
+                console.error("No token in response. Available keys:", Object.keys(response));
+                setError("Login failed: Invalid server response (missing token)");
+                return;
+            }
+
+            if (response.user) {
+                localStorage.setItem('user', JSON.stringify(response.user));
+                console.log("User stored");
+            } else {
+                console.error("No user in response. Attempting to decode token...");
+                try {
+                    // Simple JWT decode
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+
+                    const payload = JSON.parse(jsonPayload);
+                    console.log("Decoded payload:", payload);
+
+                    // Map payload to User object
+                    // Adjust keys based on what your token actually contains (e.g., sub, username, email)
+                    const userFromToken = {
+                        id: payload.sub || payload.id || payload.userId,
+                        username: payload.username || payload.name || payload.email?.split('@')[0] || "User",
+                        email: payload.email || "",
+                        // Add defaults
+                        followersCount: 0,
+                        followingCount: 0
+                    };
+
+                    if (userFromToken.id) {
+                        localStorage.setItem('user', JSON.stringify(userFromToken));
+                        console.log("User stored from token");
+                    } else {
+                        throw new Error("Token payload missing required user fields");
+                    }
+                } catch (e) {
+                    console.error("Failed to decode token for user info:", e);
+                    setError("Login successful, but failed to retrieve user details. Please check backend response.");
+                    return;
+                }
+            }
 
             // Redirect to feed
-            router.push('/');
+            console.log("Redirecting to /home");
+            router.push('/home');
         } catch (err: any) {
+            console.error("Login failed:", err);
             setError(err.message || 'Failed to login');
         } finally {
             setIsLoading(false);

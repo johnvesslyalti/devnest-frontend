@@ -114,7 +114,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     return (
         <div className="min-h-screen bg-black pb-20">
             <header className="sticky top-0 z-10 bg-black/80 backdrop-blur-md border-b border-zinc-800 px-4 py-3 flex items-center gap-4">
-                <Link href="/" className="hover:bg-zinc-800 p-2 rounded-full transition-colors text-white">
+                <Link href="/home" className="hover:bg-zinc-800 p-2 rounded-full transition-colors text-white">
                     <ArrowLeft size={20} />
                 </Link>
                 <div>

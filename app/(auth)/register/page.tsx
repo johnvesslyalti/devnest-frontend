@@ -41,7 +41,7 @@ export default function RegisterPage() {
             localStorage.setItem('user', JSON.stringify(response.user));
 
             // Redirect to feed
-            router.push('/');
+            router.push('/home');
         } catch (err: any) {
             setError(err.message || 'Failed to register');
         } finally {
