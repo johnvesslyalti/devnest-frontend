@@ -38,7 +38,9 @@ export async function apiClient<T>(endpoint: string, options: FetchOptions = {})
 
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || `API Error: ${res.statusText}`);
+        const error = new Error(errorData.message || `API Error: ${res.statusText}`);
+        (error as any).status = res.status;
+        throw error;
     }
 
     // Handle 204 No Content

@@ -29,7 +29,12 @@ export const authApi = {
         // For now we might rely on stored user data from login
         if (typeof window !== "undefined") {
             const userStr = localStorage.getItem("user");
-            return userStr ? JSON.parse(userStr) : null;
+            if (!userStr || userStr === "undefined") return null;
+            try {
+                return JSON.parse(userStr);
+            } catch (e) {
+                return null;
+            }
         }
         return null;
     }
