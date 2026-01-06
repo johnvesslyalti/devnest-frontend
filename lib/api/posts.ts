@@ -13,7 +13,7 @@ export const postsApi = {
     },
 
     getFeed: () => {
-        return apiClient<Post[]>("/home");
+        return apiClient<Post[]>("/feed");
     },
 
     // getPublicFeed: () => {

@@ -27,6 +27,9 @@ export async function apiClient<T>(endpoint: string, options: FetchOptions = {})
         authHeader = { Authorization: `Bearer ${token}` };
     }
 
+    console.log(`[API Request] ${options.method || 'GET'} ${endpoint}`);
+    console.log(`[API Token] Present: ${!!authHeader.Authorization}`);
+
     const res = await fetch(`${BASE_URL}${endpoint}`, {
         headers: {
             ...defaultHeaders,
