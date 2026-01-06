@@ -12,6 +12,7 @@ import Link from 'next/link';
 export default function HomePage() {
     const router = useRouter();
     const [posts, setPosts] = useState<Post[]>([]);
+    const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [postContent, setPostContent] = useState("");
@@ -28,6 +29,7 @@ export default function HomePage() {
     }, [router]);
 
     const fetchPosts = async () => {
+        setError(null); // Clear previous errors
         try {
             // Assuming getFeed is the correct endpoint for logged in user
             const data = await postsApi.getFeed();
@@ -35,13 +37,15 @@ export default function HomePage() {
         } catch (error: any) {
             // Handle Unauthorized - Token expired or invalid
             if (error.status === 401) {
-                authApi.logout();
-                router.push('/login');
+                // authApi.logout();
+                // router.push('/login');
+                console.error("401 Unauthorized received. Token might be invalid.");
+                setError("Session expired or invalid token. Please log in again.");
                 return;
             }
 
             console.error("Failed to fetch posts", error);
-
+            setError("Failed to load posts. Please try again later.");
             setPosts([]);
         } finally {
             setIsLoading(false);
@@ -119,7 +123,12 @@ export default function HomePage() {
 
                 {/* Feed */}
                 <div className="bg-zinc-900 rounded-xl shadow-sm border border-zinc-800 overflow-hidden mx-4 sm:mx-0 min-h-[50vh]">
-                    {isLoading ? (
+                    {error ? (
+                        <div className="p-8 text-center">
+                            <p className="text-red-500 mb-4">{error}</p>
+                            <Button onClick={() => { authApi.logout(); router.push('/login') }}>Go to Login</Button>
+                        </div>
+                    ) : isLoading ? (
                         <div className="p-8 text-center text-zinc-400">Loading posts...</div>
                     ) : posts.length > 0 ? (
                         posts.map(post => (
