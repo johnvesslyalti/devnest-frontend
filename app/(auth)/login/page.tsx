@@ -51,11 +51,23 @@ export default function LoginPage() {
                 return;
             }
 
-            if (response.user) {
-                localStorage.setItem('user', JSON.stringify(response.user));
+            // Check if response has nested user OR if response IS the user (flattened)
+            const userObj = response.user || (response.id ? response : null);
+
+            if (userObj) {
+                // Ensure field mapping if needed
+                const userToStore = {
+                    ...userObj,
+                    // If backend returns 'name' but frontend expects 'username' (common mismatch in setups)
+                    // The recent curl showed "name": "Debug User". Check if "username" is there.
+                    // If simple register didn't return username, we might default or map it.
+                    username: userObj.username || userObj.name || "User",
+                };
+                localStorage.setItem('user', JSON.stringify(userToStore));
                 console.log("User stored");
             } else {
                 console.warn("No user in response. Attempting to decode token...");
+                // ... existing fallback logic ...
                 try {
                     // Simple JWT decode
                     const base64Url = token.split('.')[1];
@@ -67,13 +79,10 @@ export default function LoginPage() {
                     const payload = JSON.parse(jsonPayload);
                     console.log("Decoded payload:", payload);
 
-                    // Map payload to User object
-                    // Adjust keys based on what your token actually contains (e.g., sub, username, email)
                     const userFromToken = {
                         id: payload.sub || payload.id || payload.userId,
                         username: payload.username || payload.name || payload.email?.split('@')[0] || "User",
                         email: payload.email || "",
-                        // Add defaults
                         followersCount: 0,
                         followingCount: 0
                     };
@@ -82,12 +91,12 @@ export default function LoginPage() {
                         localStorage.setItem('user', JSON.stringify(userFromToken));
                         console.log("User stored from token");
                     } else {
-                        throw new Error("Token payload missing required user fields");
+                        // Should not crash the auth flow if we have a token, just might be missing profile info
+                        console.warn("Token payload missing required user fields");
                     }
                 } catch (e) {
                     console.error("Failed to decode token for user info:", e);
-                    setError("Login successful, but failed to retrieve user details. Please check backend response.");
-                    return;
+                    // Do not return; allow redirect if we have a token
                 }
             }
 

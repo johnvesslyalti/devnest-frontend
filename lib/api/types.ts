@@ -1,6 +1,7 @@
 export interface User {
     id: string;
     username: string;
+    name?: string; // Backend sometimes returns 'name'
     email: string;
     bio?: string;
     avatarUrl?: string;
@@ -13,6 +14,11 @@ export interface AuthResponse {
     accessToken?: string;
     access_token?: string;
     user: User;
+    // Support flattened response structure
+    id?: string;
+    name?: string;
+    username?: string;
+    email?: string;
 }
 
 export interface Post {
