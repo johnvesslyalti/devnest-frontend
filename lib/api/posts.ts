@@ -1,4 +1,5 @@
 import { apiClient } from "./client";
+import { authApi } from "./auth";
 import { Post, Comment } from "./types";
 
 export const postsApi = {
@@ -20,11 +21,20 @@ export const postsApi = {
     //     return apiClient<Post[]>("/home");
     // },
 
-    createPost: (content: string) => {
-        return apiClient<Post>("/posts", {
+    createPost: async (content: string) => {
+        const response = await apiClient<{ message: string, post: Post }>("/posts", {
             method: "POST",
-            body: JSON.stringify({ content }), // Doc didn't specify body structure but implied. Inferred content.
+            body: JSON.stringify({ content }),
         });
+        const post = response.post;
+        // Backend might not return the full author object, so we attach the current user
+        if (!post.author) {
+            const currentUser = authApi.getCurrentUser();
+            if (currentUser) {
+                post.author = currentUser;
+            }
+        }
+        return post;
     },
 
     getPost: (id: string) => {
