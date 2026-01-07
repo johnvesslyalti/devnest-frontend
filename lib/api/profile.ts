@@ -34,4 +34,12 @@ export const profileApi = {
     getFollowing: (userId: string) => {
         return apiClient<User[]>(`/follow/${userId}/following`);
     },
+
+    blockUser: (userId: string) => {
+        return apiClient<void>(`/follow/${userId}/block`, { method: "POST" });
+    },
+
+    unblockUser: (userId: string) => {
+        return apiClient<void>(`/follow/${userId}/unblock`, { method: "DELETE" });
+    },
 };

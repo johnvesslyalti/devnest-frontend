@@ -13,7 +13,7 @@ export const postsApi = {
     },
 
     getFeed: () => {
-        return apiClient<Post[]>("/feed");
+        return apiClient<Post[]>("/home");
     },
 
     // getPublicFeed: () => {
@@ -36,11 +36,11 @@ export const postsApi = {
     },
 
     likePost: (postId: string) => {
-        return apiClient<void>(`/likes/${postId}`, { method: "POST" });
+        return apiClient<void>(`/posts/${postId}/like`, { method: "POST" });
     },
 
     unlikePost: (postId: string) => {
-        return apiClient<void>(`/likes/${postId}`, { method: "DELETE" });
+        return apiClient<void>(`/posts/${postId}/unlike`, { method: "DELETE" });
     },
 
     getComments: (postId: string) => {
