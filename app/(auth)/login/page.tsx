@@ -55,7 +55,7 @@ export default function LoginPage() {
                 localStorage.setItem('user', JSON.stringify(response.user));
                 console.log("User stored");
             } else {
-                console.error("No user in response. Attempting to decode token...");
+                console.warn("No user in response. Attempting to decode token...");
                 try {
                     // Simple JWT decode
                     const base64Url = token.split('.')[1];

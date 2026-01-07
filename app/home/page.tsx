@@ -59,17 +59,10 @@ export default function HomePage() {
         setIsPosting(true);
         try {
             const newPost = await postsApi.createPost(postContent);
-            console.log("Created post response:", newPost);
-
-            if (!newPost || !newPost.id) {
-                console.error("Created post missing ID:", newPost);
-                // Fallback or alert?
-            }
-
             setPosts([newPost, ...posts]);
             setPostContent("");
         } catch (error) {
-            console.error("Failed to create post - Detailed:", error);
+            console.error("Failed to create post", error);
         } finally {
             setIsPosting(false);
         }
